@@ -2,3 +2,6 @@ dotenv
 requests
 howlongtobeatpy
 polars
+pyodbc
+regex
+sqlalchemy

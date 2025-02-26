@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from howlongtobeatpy import HowLongToBeat
 import polars as pl
-
+from SQL_Create_Connection_String import engine
 
 load_dotenv()
 
@@ -36,8 +36,8 @@ if __name__ == "__main__":
         owned_games_df = pl.DataFrame(None,
                            schema=
                            {
-                               "actual_game_name": pl.String,
                                "game_name": pl.String,
+                               "hltb_game_name": pl.String,
                                "completionist_time": pl.Float64,
                                "found": pl.Boolean,
                                "same": pl.Boolean
@@ -67,8 +67,8 @@ if __name__ == "__main__":
                 same_bool = False
             new_row = \
                 {
-                    "actual_game_name": game['name'],
-                    "game_name": game_name,
+                    "game_name": game['name'],
+                    "hltb_game_name": game_name,
                     "completionist_time": completion_time,
                     "found": found_bool,
                     "same": same_bool
@@ -79,8 +79,15 @@ if __name__ == "__main__":
             owned_games_df = owned_games_df.vstack(df_new_row)
 
 
+
             #print(f"- {game['name']}")
     else:
         print("No games found in the library.")
 
-    test = 0
+
+    insert_df = owned_games_df.filter(pl.col("found") is True)
+    insert_df = insert_df.filter(pl.col("same") is True)
+    insert_df = insert_df.drop("hltb_game_name")
+    insert_df = insert_df.drop("found")
+    insert_df = insert_df.drop("same")
+    insert_df.write_database(table_name="games.owned_games_list", connection=engine)
