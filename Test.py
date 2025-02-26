@@ -33,24 +33,50 @@ def get_owned_games(steam_id, api_key):
 if __name__ == "__main__":
     owned_games = get_owned_games(STEAM_USER_ID, STEAM_API_KEY)
     if owned_games:
-        print("Games in your Steam library:")
         owned_games_df = pl.DataFrame(None,
-                           schema={"actual_game_name": pl.String, "game_name": pl.String, "completionist_time": pl.Float64})
-
-
+                           schema=
+                           {
+                               "actual_game_name": pl.String,
+                               "game_name": pl.String,
+                               "completionist_time": pl.Float64,
+                               "found": pl.Boolean,
+                               "same": pl.Boolean
+                           })
+        game_name = 'TEMP VALUE'
+        completion_time = 0.0
+        print("There are " + str(len(owned_games)) + " games in your Steam library.")
         for i, game in enumerate(owned_games):
             result_list = HowLongToBeat().search(game['name'])
             if result_list is not None and len(result_list) > 0:
+                #make sure its from steam too
                 best_element = max(result_list, key=lambda element: element.similarity)
-                new_row = \
+                print(str(i) + ": " + best_element.game_name + " loaded")
+                game_name = best_element.game_name
+                completion_time = best_element.completionist
+                found_bool = True
+            else:
+                print(str(i) + ": " + game['name'] + " not loaded")
+                game_name = 'TEMP VALUE'
+                completion_time = 0.0
+                found_bool = False
+
+            if game['name'] == game_name:
+                same_bool = True
+            else:
+                print(game['name'] + " is different than " + game_name)
+                same_bool = False
+            new_row = \
                 {
                     "actual_game_name": game['name'],
-                    "game_name": best_element.game_name,
-                    "completionist_time": best_element.completionist
+                    "game_name": game_name,
+                    "completionist_time": completion_time,
+                    "found": found_bool,
+                    "same": same_bool
+
+
                 }
-                df_new_row = pl.DataFrame(new_row)
-                owned_games_df = owned_games_df.vstack(df_new_row)
-                print(game['name'] + " " + best_element.game_name + " loaded")
+            df_new_row = pl.DataFrame(new_row)
+            owned_games_df = owned_games_df.vstack(df_new_row)
 
 
             #print(f"- {game['name']}")
