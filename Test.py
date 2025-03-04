@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 from howlongtobeatpy import HowLongToBeat
 import polars as pl
-from SQL_Create_Connection_String import engine
+from SQL_Create_Connection_String import connectionString
 
 load_dotenv()
 
@@ -46,6 +46,9 @@ if __name__ == "__main__":
         completion_time = 0.0
         print("There are " + str(len(owned_games)) + " games in your Steam library.")
         for i, game in enumerate(owned_games):
+
+            if i > 10:
+                break
             result_list = HowLongToBeat().search(game['name'])
             if result_list is not None and len(result_list) > 0:
                 #make sure its from steam too
@@ -85,9 +88,10 @@ if __name__ == "__main__":
         print("No games found in the library.")
 
 
-    insert_df = owned_games_df.filter(pl.col("found") is True)
-    insert_df = insert_df.filter(pl.col("same") is True)
+    insert_df = owned_games_df.filter(pl.col("found"))
+    insert_df = insert_df.filter(pl.col("same"))
     insert_df = insert_df.drop("hltb_game_name")
     insert_df = insert_df.drop("found")
     insert_df = insert_df.drop("same")
-    insert_df.write_database(table_name="games.owned_games_list", connection=engine)
+    insert_df.write_database(table_name="games.owned_games_list", connection=connectionString, if_table_exists = 'append'
+)
