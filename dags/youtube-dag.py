@@ -1,7 +1,7 @@
 import datetime
 from airflow.decorators import dag,task
 from airflow.models import Variable
-
+from GameListCreator_ETL.docker-scripts import *
 
 @dag(schedule=None, start_date=datetime.datetime(2023, 9 ,1))
 def get_variable():
