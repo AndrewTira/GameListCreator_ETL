@@ -32,6 +32,7 @@ class GameListCreator:
             print(f"Error: {response.status_code}")
 
     def stepone(self):
+        owned_games = []
         if owned_games:
             owned_games_df = pl.DataFrame(None,
                                           schema=
@@ -88,10 +89,9 @@ if __name__ == "__main__":
    gameListCreator = GameListCreator()
 
 
-    insert_df = owned_games_df.filter(pl.col("found"))
-    insert_df = insert_df.filter(pl.col("same"))
-    insert_df = insert_df.drop("hltb_game_name")
-    insert_df = insert_df.drop("found")
-    insert_df = insert_df.drop("same")
-    insert_df.write_database(table_name="games.owned_games_list", connection=connectionString, if_table_exists = 'append'
-)
+    # insert_df = owned_games_df.filter(pl.col("found"))
+    # insert_df = insert_df.filter(pl.col("same"))
+    # insert_df = insert_df.drop("hltb_game_name")
+    # insert_df = insert_df.drop("found")
+    # insert_df = insert_df.drop("same")
+    # insert_df.write_database(table_name="games.owned_games_list", connection=connectionString, if_table_exists = 'append')
